@@ -1,6 +1,6 @@
 # NLSE
 
-Norland Script Extender. Loads mods for Norland without changing the game's files.
+Norland Script Extender. Loads mods and plugins for Norland without changing the game's files.
 
 A mod changes only the values it needs, so two mods can edit the same file and a game update does not wipe them.
 
@@ -30,9 +30,18 @@ The rest of the folder mirrors the game folder:
 
 Mods load in alphabetical order. CSV files are not supported yet.
 
+## Making a plugin
+
+A plugin is a DLL in `mods\NLSE\Plugins`. It includes [nlse.h](nlse.h) and exports:
+
+    NLSE_EXPORT const NLSEPluginVersion NLSEPlugin_Version = {NLSE_API_VERSION, "Example", "1.0", "you"};
+    NLSE_EXPORT bool NLSEPlugin_Load(const NLSEInterface* nlse);
+
+Example: [example_plugin.cpp](example_plugin.cpp), build with `cl /O2 /LD example_plugin.cpp`.
+
 ## Log
 
-`%LOCALAPPDATA%\Strategy\nlse.log` lists every mod and every change it made.
+`%LOCALAPPDATA%\Strategy\nlse.log` lists every mod, every change it made and every plugin.
 
 ## Building
 
