@@ -6,7 +6,9 @@ A mod changes only the values it needs, so two mods can edit the same file and a
 
 ## Install
 
-With Mod Organizer 2: copy `game_norland.py` to `MO2\plugins\basic_games\games`, create an instance for Norland and install NLSE as a mod.
+Download the files from the [latest release](https://github.com/hkyss/nlse/releases/latest).
+
+With Mod Organizer 2: copy `game_norland.py` to `MO2\plugins\basic_games\games`, create an instance for Norland and install `NLSE-<version>.zip` as a mod.
 
 Without MO2: put `winmm.dll` next to `Norland.exe` and create a `mods` folder beside it. To turn NLSE off, delete `winmm.dll`.
 

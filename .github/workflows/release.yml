@@ -1,0 +1,94 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+    paths: [nlse.cpp, game_norland.py]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build only, publish nothing
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+      mode: ${{ steps.read.outputs.mode }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: read
+        env:
+          EVENT: ${{ github.event_name }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          version=$(sed -n 's/^constexpr wchar_t version\[\] = L"\(.*\)";$/\1/p' nlse.cpp)
+          plugin=$(sed -n 's/^    Version = "\(.*\)"$/\1/p' game_norland.py)
+          if [ -z "$version" ] || [ "$version" != "$plugin" ]; then
+            echo "::error::nlse.cpp has version '$version', game_norland.py has '$plugin'"
+            exit 1
+          fi
+          if [ "$DRY_RUN" = true ]; then
+            mode=dry-run
+          elif ! git ls-remote --exit-code --tags origin "refs/tags/v$version" > /dev/null; then
+            mode=release
+          elif [ "$EVENT" = workflow_dispatch ]; then
+            echo "::error::v$version is already released"
+            exit 1
+          else
+            echo "::notice::v$version is already released"
+            mode=skip
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: version
+    if: needs.version.outputs.mode != 'skip'
+    runs-on: windows-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - run: ./make.bat
+
+      - run: |
+          New-Item -ItemType Directory dist | Out-Null
+          Compress-Archive out/nlse.dll "dist/NLSE-$env:VERSION.zip"
+          Copy-Item out/winmm.dll, game_norland.py dist
+
+      - if: needs.version.outputs.mode == 'dry-run'
+        uses: actions/upload-artifact@v7
+        with:
+          name: NLSE-${{ env.VERSION }}
+          path: dist/
+          if-no-files-found: error
+
+      - if: needs.version.outputs.mode == 'release'
+        uses: actions/attest@v4
+        with:
+          subject-path: dist/*
+
+      - if: needs.version.outputs.mode == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NOTES: |
+            With Mod Organizer 2: copy `game_norland.py` to `MO2\plugins\basic_games\games`, create an instance for Norland and install `NLSE-${{ needs.version.outputs.version }}.zip` as a mod.
+
+            Without MO2: put `winmm.dll` next to `Norland.exe` and create a `mods` folder beside it.
+        run: |
+          Set-Content "$env:RUNNER_TEMP/notes.md" $env:NOTES
+          gh release create "v$env:VERSION" (Get-ChildItem dist).FullName --title "NLSE $env:VERSION" --target $env:GITHUB_SHA --notes-file "$env:RUNNER_TEMP/notes.md"
