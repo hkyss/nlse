@@ -66,9 +66,14 @@ jobs:
       - run: ./make.bat
 
       - run: |
-          New-Item -ItemType Directory dist | Out-Null
-          Compress-Archive out/nlse.dll "dist/NLSE-$env:VERSION.zip"
-          Copy-Item out/winmm.dll, game_norland.py dist
+          $plugin = "pack/NLSE-MO2-plugin-$env:VERSION/plugins/basic_games/games"
+          $manual = "pack/NLSE-manual-$env:VERSION"
+          New-Item -ItemType Directory dist, "pack/NLSE-$env:VERSION", $plugin, "$manual/mods" | Out-Null
+          Copy-Item out/nlse.dll "pack/NLSE-$env:VERSION"
+          Copy-Item game_norland.py $plugin
+          Copy-Item out/winmm.dll $manual
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          Get-ChildItem pack | ForEach-Object { [IO.Compression.ZipFile]::CreateFromDirectory($_.FullName, "$PWD/dist/$($_.Name).zip") }
 
       - if: needs.version.outputs.mode == 'dry-run'
         uses: actions/upload-artifact@v7
@@ -86,9 +91,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           NOTES: |
-            With Mod Organizer 2: copy `game_norland.py` to `MO2\plugins\basic_games\games`, create an instance for Norland and install `NLSE-${{ needs.version.outputs.version }}.zip` as a mod.
+            With Mod Organizer 2: extract `NLSE-MO2-plugin-${{ needs.version.outputs.version }}.zip` into the folder with `ModOrganizer.exe`, create an instance for Norland and install `NLSE-${{ needs.version.outputs.version }}.zip` as a mod.
 
-            Without MO2: put `winmm.dll` next to `Norland.exe` and create a `mods` folder beside it.
+            Without MO2: extract `NLSE-manual-${{ needs.version.outputs.version }}.zip` into the folder with `Norland.exe`.
         run: |
           Set-Content "$env:RUNNER_TEMP/notes.md" $env:NOTES
           gh release create "v$env:VERSION" (Get-ChildItem dist).FullName --title "NLSE $env:VERSION" --target $env:GITHUB_SHA --notes-file "$env:RUNNER_TEMP/notes.md"
