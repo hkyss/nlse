@@ -1,5 +1,6 @@
-import mobase
 from PyQt6.QtCore import QDir
+
+import mobase
 
 from ..basic_game import BasicGame
 
@@ -21,5 +22,7 @@ class NorlandGame(BasicGame):
     GameSaveExtension = "norland"
 
     def executableForcedLoads(self) -> list[mobase.ExecutableForcedLoadSetting]:
-        loader = QDir.toNativeSeparators(self.dataDirectory().absoluteFilePath("nlse.dll"))
-        return [mobase.ExecutableForcedLoadSetting(self.binaryName(), loader).withEnabled(True)]
+        path = self.dataDirectory().absoluteFilePath("nlse.dll")
+        loader = QDir.toNativeSeparators(path)
+        setting = mobase.ExecutableForcedLoadSetting(self.binaryName(), loader)
+        return [setting.withEnabled(True)]
