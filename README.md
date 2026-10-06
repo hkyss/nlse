@@ -23,6 +23,9 @@ The rest of the folder mirrors the game folder:
 - a JSON file the game has: write only the keys you change, `null` removes a key
 - a file the game does not have: it is added
 - any other file: it replaces the game's
+- `sprites\<sprite>.png`: replaces a sprite inside `data.win`, `sprites\<sprite>\<frame>.png` one of its frames
+- `fonts\<font>.ttf` named after a font inside `data.win`: replaces that font
+- `code.json`: changes values and calls in the game's scripts, see [CODE.md](CODE.md)
 
 `mods\Cheap Huts\debug_params.json` that makes a hut cost 1 wood:
 

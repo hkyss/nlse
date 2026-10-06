@@ -8,7 +8,7 @@ from ..basic_game import BasicGame
 class NorlandGame(BasicGame):
     Name = "Norland Support Plugin"
     Author = "hkyss"
-    Version = "0.2.0"
+    Version = "0.3.0"
 
     GameName = "Norland"
     GameShortName = "norland"
