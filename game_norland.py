@@ -25,7 +25,7 @@ class NorlandModDataChecker(mobase.ModDataChecker):
 class NorlandGame(BasicGame):
     Name = "Norland Support Plugin"
     Author = "hkyss"
-    Version = "0.3.0"
+    Version = "0.3.1"
 
     GameName = "Norland"
     GameShortName = "norland"

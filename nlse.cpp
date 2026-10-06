@@ -18,7 +18,7 @@
 
 namespace {
 
-constexpr wchar_t version[] = L"0.3.0";
+constexpr wchar_t version[] = L"0.3.1";
 
 HMODULE self;
 bool active = false;
