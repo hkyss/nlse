@@ -16,6 +16,6 @@ if not exist "%OUT%" mkdir "%OUT%"
 cl /nologo /std:c++17 /O2 /MT /W4 /EHsc /LD "%~dp0nlse.cpp" "%~dp0winmm_exports.cpp" /Fo"%OUT%\\" /Fe"%OUT%\nlse.dll" /link /NOLOGO || exit /b 1
 cl /nologo /std:c++17 /O2 /MT /W4 /EHsc /LD "%~dp0example_plugin.cpp" /Fo"%OUT%\\" /Fe"%OUT%\example_plugin.dll" /link /NOLOGO || exit /b 1
 cl /nologo /std:c++17 /O2 /MT /W4 /EHsc "%~dp0check.cpp" /Fo"%OUT%\\" /Fe"%OUT%\check.exe" /link /NOLOGO || exit /b 1
-"%OUT%\check.exe" %1 || exit /b 1
+"%OUT%\check.exe" || exit /b 1
 copy /y "%OUT%\nlse.dll" "%OUT%\winmm.dll" >nul || exit /b 1
 echo Built %OUT%\nlse.dll and %OUT%\winmm.dll
